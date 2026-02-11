@@ -1,5 +1,3 @@
-import { useEffect, useRef, useState } from "react";
-
 import { ContextMenu } from "primereact/contextmenu";
 import { InputText } from "primereact/inputtext";
 import {
@@ -8,6 +6,8 @@ import {
     type TreeExpandedKeysType,
 } from "primereact/tree";
 import type { TreeNode } from "primereact/treenode";
+import { classNames } from "primereact/utils";
+import { useEffect, useRef, useState } from "react";
 
 export const FileTree = () => {
     const [nodes, setNodes] = useState<TreeNode[]>([]);
@@ -123,7 +123,7 @@ export const FileTree = () => {
                 value={nodes}
                 dragdropScope="demo"
                 onDragDrop={(e: TreeDragDropEvent) => setNodes(e.value)}
-                className="w-full h-screen overflow-y-auto"
+                className="w-full h-screen flex flex-column pr-0"
                 onContextMenu={(e) =>
                     (cm.current as ContextMenu).show(e.originalEvent)
                 }
@@ -148,6 +148,8 @@ export const FileTree = () => {
                         },
                     }),
                     droppoint: "h-auto",
+                    container: "overflow-y-auto",
+                    header: "pr-3",
                 }}
             />
         </>
@@ -239,6 +241,96 @@ const NodeService = {
                             },
                             {
                                 key: "0-0-11",
+                                label: "Resume.doc",
+                                icon: "pi pi-file",
+                                data: "Resume Document",
+                            },
+                            {
+                                key: "0-0-12",
+                                label: "Resume.doc",
+                                icon: "pi pi-file",
+                                data: "Resume Document",
+                            },
+                            {
+                                key: "0-0-13",
+                                label: "Resume.doc",
+                                icon: "pi pi-file",
+                                data: "Resume Document",
+                            },
+                            {
+                                key: "0-0-14",
+                                label: "Resume.doc",
+                                icon: "pi pi-file",
+                                data: "Resume Document",
+                            },
+                            {
+                                key: "0-0-15",
+                                label: "Resume.doc",
+                                icon: "pi pi-file",
+                                data: "Resume Document",
+                            },
+                            {
+                                key: "0-0-16",
+                                label: "Resume.doc",
+                                icon: "pi pi-file",
+                                data: "Resume Document",
+                            },
+                            {
+                                key: "0-0-17",
+                                label: "Resume.doc",
+                                icon: "pi pi-file",
+                                data: "Resume Document",
+                            },
+                            {
+                                key: "0-0-18",
+                                label: "Resume.doc",
+                                icon: "pi pi-file",
+                                data: "Resume Document",
+                            },
+                            {
+                                key: "0-0-19",
+                                label: "Resume.doc",
+                                icon: "pi pi-file",
+                                data: "Resume Document",
+                            },
+                            {
+                                key: "0-0-20",
+                                label: "Resume.doc",
+                                icon: "pi pi-file",
+                                data: "Resume Document",
+                            },
+                            {
+                                key: "0-0-21",
+                                label: "Resume.doc",
+                                icon: "pi pi-file",
+                                data: "Resume Document",
+                            },
+                            {
+                                key: "0-0-22",
+                                label: "Resume.doc",
+                                icon: "pi pi-file",
+                                data: "Resume Document",
+                            },
+                            {
+                                key: "0-0-23",
+                                label: "Resume.doc",
+                                icon: "pi pi-file",
+                                data: "Resume Document",
+                            },
+                            {
+                                key: "0-0-24",
+                                label: "Resume.doc",
+                                icon: "pi pi-file",
+                                data: "Resume Document",
+                            },
+                            {
+                                key: "0-0-25",
+                                label: "Resume.doc",
+                                icon: "pi pi-file",
+                                data: "Resume Document",
+                            },
+                            {
+                                key: "0-0-26",
                                 label: "Resume.doc",
                                 icon: "pi pi-file",
                                 data: "Resume Document",

@@ -1,11 +1,8 @@
-import { Editor, type EditorTextChangeEvent } from "primereact/editor";
-import { useState } from "react";
-
-import { FileTree } from "../FileTree/FileTree";
+import { FileTree } from "../FileTree";
+import { TabsContainer } from "../TabsContainer";
+import { TopBar } from "../TobBar";
 
 export const App = () => {
-    const [text, setText] = useState<string>("");
-
     return (
         <div className="flex w-screen h-screen">
             <div
@@ -14,14 +11,9 @@ export const App = () => {
             >
                 <FileTree />
             </div>
-            <div className="hidden sm:block">
-                <Editor
-                    value={text}
-                    onTextChange={(e: EditorTextChangeEvent) =>
-                        setText(e.htmlValue as string)
-                    }
-                    style={{ height: "320px" }}
-                />
+            <div className="hidden sm:flex flex-column w-full h-full">
+                <TopBar />
+                <TabsContainer />
             </div>
         </div>
     );
