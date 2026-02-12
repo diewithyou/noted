@@ -8,7 +8,7 @@ export const TabsContainer = () => {
     );
 
     return (
-        <div className="h-full">
+        <div className="h-full overflow-hidden">
             <TabView
                 className="flex flex-column h-full"
                 pt={{
@@ -23,6 +23,12 @@ export const TabsContainer = () => {
                         onChange={setValue}
                         data-color-mode="dark"
                         height="100%"
+                        style={{ fontSize: "30px" }}
+                        textareaProps={{
+                            style: {
+                                fontSize: "28px",
+                            },
+                        }}
                     />
                 </TabPanel>
                 <TabPanel header="Header II">
