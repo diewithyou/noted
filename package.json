@@ -5,7 +5,8 @@
         "apps/*"
     ],
     "scripts": {
-        "client": "yarn workspace client"
+        "client": "yarn workspace client",
+        "server": "yarn workspace server"
     },
     "devDependencies": {
         "@eslint/js": "^9.39.1",
