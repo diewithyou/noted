@@ -114,7 +114,7 @@ export const FileTree = () => {
         NodeService.getTreeNodes().then((data) => setNodes(data));
     }, []);
 
-    console.log({ expandedKeys });
+    // console.log({ expandedKeys });
 
     return (
         <>
