@@ -2,32 +2,19 @@ import MDEditor from "@uiw/react-md-editor";
 import { TabView, TabPanel } from "primereact/tabview";
 import { useEffect, useState } from "react";
 
-const fetchFile = async (path: string) => {
-    const response = await fetch("http://192.168.1.17:5172/api/files/content", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ filePath: path }),
-    });
-
-    const data = await response.json();
-    console.log(data.content);
-
-    return data.content;
-};
+import { fetchFile } from "../../services/FileService";
 
 export const TabsContainer = () => {
-    const [value, setValue] = useState<string | undefined>(
-        "**Hello world!!!**",
-    );
+    const [value, setValue] = useState<string | undefined>("");
 
     useEffect(() => {
+        console.log("[DEBUG] Test");
         const ttt = async () => {
-            const ee = await fetchFile("/config/test.md");
+            const ee = await fetchFile("test.md");
 
-            console.log({ ee });
-            setValue(ee);
+            // console.log({ ee });
+
+            setValue(ee.content);
         };
 
         ttt();
