@@ -42,7 +42,7 @@ export async function getDirectoryTree(
             info.size = stats.size;
         }
         return info;
-    } catch (err) {
+    } catch {
         return undefined;
     }
 }

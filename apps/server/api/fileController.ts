@@ -1,35 +1,37 @@
-import type { Request, RequestHandler, Response } from "express";
-import * as fileService from "./fileService.js";
 import { join, resolve } from "node:path";
+
 import type {
     CreateDirectoryRequest,
-    CreateDirectoryResponseType,
+    CreateDirectoryResponse,
     CreateFileRequest,
-    CreateFileResponseType,
-    GetDirectoryTreeResponseType,
+    CreateFileResponse,
+    GetDirectoryTreeResponse,
     MoveItemRequest,
-    MoveItemResponseType,
+    MoveItemResponse,
     ReadFileContentRequest,
     ReadFileContentResponse,
     RemoveItemRequest,
-    RemoveItemResponseType,
+    RemoveItemResponse,
     UpdateFileContentRequest,
-    UpdateFileContentResponseType,
+    UpdateFileContentResponse,
 } from "@noted/types";
+import type { Request, Response } from "express";
+
+import * as fileService from "./fileService.js";
 
 const ROOT_DIR = resolve("/test");
 
 export const getTree = async (
     _req: Request,
-    res: Response<GetDirectoryTreeResponseType>,
+    res: Response<GetDirectoryTreeResponse>,
 ) => {
     try {
         const tree = await fileService.getDirectoryTree(ROOT_DIR);
         res.json({
             tree,
             status: { success: true },
-        } as GetDirectoryTreeResponseType);
-    } catch (error) {
+        } as GetDirectoryTreeResponse);
+    } catch {
         res.status(500).json({
             status: { success: false, error: "Internal Server Error" },
         });
@@ -37,7 +39,7 @@ export const getTree = async (
 };
 
 export const readFileContent = async (
-    req: Request<{}, {}, ReadFileContentRequest>,
+    req: Request<unknown, unknown, ReadFileContentRequest>,
     res: Response<ReadFileContentResponse>,
 ) => {
     const { filePath } = req.body;
@@ -63,8 +65,8 @@ export const readFileContent = async (
         res.json({
             content,
             path: absolutePath,
-        } as ReadFileContentResponseType);
-    } catch (error) {
+        } as ReadFileContentResponse);
+    } catch {
         res.status(500).json({
             status: { success: false, error: "Could not read file" },
         });
@@ -72,8 +74,8 @@ export const readFileContent = async (
 };
 
 export const updateFileContent = async (
-    req: Request<{}, {}, UpdateFileContentRequest>,
-    res: Response<UpdateFileContentResponseType>,
+    req: Request<unknown, unknown, UpdateFileContentRequest>,
+    res: Response<UpdateFileContentResponse>,
 ) => {
     const { filePath, content } = req.body;
 
@@ -99,7 +101,7 @@ export const updateFileContent = async (
     try {
         await fileService.writeFileContent(absolutePath, content);
         res.json({ status: { success: true } });
-    } catch (error) {
+    } catch {
         res.status(500).json({
             status: { success: false, error: "Could not save file" },
         });
@@ -107,8 +109,8 @@ export const updateFileContent = async (
 };
 
 export const moveItem = async (
-    req: Request<{}, {}, MoveItemRequest>,
-    res: Response<MoveItemResponseType>,
+    req: Request<unknown, unknown, MoveItemRequest>,
+    res: Response<MoveItemResponse>,
 ) => {
     const { oldPath, newPath } = req.body;
 
@@ -136,7 +138,7 @@ export const moveItem = async (
     try {
         await fileService.moveOrRename(absOld, absNew);
         res.json({ status: { success: true } });
-    } catch (error) {
+    } catch {
         res.status(500).json({
             status: { success: false, error: "Could not move or rename item" },
         });
@@ -144,8 +146,8 @@ export const moveItem = async (
 };
 
 export const removeItem = async (
-    req: Request<{}, {}, RemoveItemRequest>,
-    res: Response<RemoveItemResponseType>,
+    req: Request<unknown, unknown, RemoveItemRequest>,
+    res: Response<RemoveItemResponse>,
 ) => {
     const { path } = req.body;
 
@@ -165,7 +167,7 @@ export const removeItem = async (
     try {
         await fileService.deleteItem(absolutePath);
         res.json({ status: { success: true } });
-    } catch (error) {
+    } catch {
         res.status(500).json({
             status: { success: false, error: "Could not delete item" },
         });
@@ -173,8 +175,8 @@ export const removeItem = async (
 };
 
 export const createFile = async (
-    req: Request<{}, {}, CreateFileRequest>,
-    res: Response<CreateFileResponseType>,
+    req: Request<unknown, unknown, CreateFileRequest>,
+    res: Response<CreateFileResponse>,
 ) => {
     const { filePath } = req.body;
 
@@ -192,6 +194,7 @@ export const createFile = async (
     try {
         await fileService.createNewFile(absolutePath);
         res.json({ status: { success: true } });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         const msg =
             error.code === "EEXIST"
@@ -202,8 +205,8 @@ export const createFile = async (
 };
 
 export const createDirectory = async (
-    req: Request<{}, {}, CreateDirectoryRequest>,
-    res: Response<CreateDirectoryResponseType>,
+    req: Request<unknown, unknown, CreateDirectoryRequest>,
+    res: Response<CreateDirectoryResponse>,
 ) => {
     const { dirPath } = req.body;
 
@@ -221,7 +224,7 @@ export const createDirectory = async (
     try {
         await fileService.createNewDirectory(absolutePath);
         res.json({ status: { success: true } });
-    } catch (error) {
+    } catch {
         res.status(500).json({
             status: { success: false, error: "Could not create directory" },
         });
