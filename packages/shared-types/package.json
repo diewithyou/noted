@@ -1,0 +1,7 @@
+{
+    "name": "@noted/types",
+    "packageManager": "yarn@4.12.0",
+    "version": "0.0.1",
+    "main": "./index.ts",
+    "types": "./index.ts"
+}

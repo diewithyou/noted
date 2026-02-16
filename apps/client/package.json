@@ -10,6 +10,7 @@
         "preview": "vite preview"
     },
     "dependencies": {
+        "@noted/types": "workspace:*",
         "@uiw/react-md-editor": "^4.0.11",
         "primeflex": "^4.0.0",
         "primeicons": "^7.0.0",

@@ -8,22 +8,27 @@ import {
     mkdir,
 } from "node:fs/promises";
 import { join, basename } from "node:path";
-import type { FileNode } from "./types.ts";
+
+import type { DirTree } from "@noted/types";
 
 export async function getDirectoryTree(
     dirPath: string,
-    ignoreList: string[] = ["node_modules", ".git", ".yarn"],
-): Promise<FileNode | null> {
+    ignoreList: string[] = [],
+): Promise<DirTree | undefined> {
     const name = basename(dirPath);
 
-    if (ignoreList.includes(name)) return null;
+    if (ignoreList.includes(name)) return undefined;
 
     try {
         const stats = await stat(dirPath);
-        const info: FileNode = { name, path: dirPath, type: "file" };
+        const info: DirTree = {
+            name,
+            path: dirPath,
+            type: "f",
+        };
 
         if (stats.isDirectory()) {
-            info.type = "directory";
+            info.type = "d";
             const files = await readdir(dirPath);
             const children = await Promise.all(
                 files.map((file) =>
@@ -31,14 +36,14 @@ export async function getDirectoryTree(
                 ),
             );
             info.children = children.filter(
-                (child): child is FileNode => child !== null,
+                (child): child is DirTree => child !== null,
             );
         } else {
             info.size = stats.size;
         }
         return info;
     } catch (err) {
-        return null;
+        return undefined;
     }
 }
 
@@ -46,7 +51,7 @@ export async function getFileContent(filePath: string): Promise<string> {
     return await readFile(filePath, "utf-8");
 }
 
-export async function saveFileContent(
+export async function writeFileContent(
     filePath: string,
     content: string,
 ): Promise<void> {

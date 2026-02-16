@@ -1,6 +1,22 @@
+import type {
+    CreateDirectoryRequest,
+    CreateDirectoryResponse,
+    CreateFileRequest,
+    CreateFileResponse,
+    GetDirectoryTreeResponse,
+    MoveItemRequest,
+    MoveItemResponse,
+    ReadFileContentRequest,
+    ReadFileContentResponse,
+    RemoveItemRequest,
+    RemoveItemResponse,
+    UpdateFileContentRequest,
+    UpdateFileContentResponse,
+} from "@noted/types";
+
 import { url } from "./FileService.consts";
 
-export const fetchDirTree = async () => {
+export const fetchDirTree = async (): Promise<GetDirectoryTreeResponse> => {
     const response = await fetch(`${url}api/files/tree`, {
         method: "POST",
         headers: {
@@ -11,7 +27,10 @@ export const fetchDirTree = async () => {
     return response.json();
 };
 
-export const fetchFile = async (filePath: string) => {
+export const fetchFile = async (
+    request: ReadFileContentRequest,
+): Promise<ReadFileContentResponse> => {
+    const { filePath } = request;
     const response = await fetch(`${url}api/files/content`, {
         method: "POST",
         headers: {
@@ -25,7 +44,10 @@ export const fetchFile = async (filePath: string) => {
     return response.json();
 };
 
-export const writeFile = async (filePath: string, content: string) => {
+export const writeFile = async (
+    request: UpdateFileContentRequest,
+): Promise<UpdateFileContentResponse> => {
+    const { content, filePath } = request;
     const response = await fetch(`${url}api/files/save`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -38,7 +60,10 @@ export const writeFile = async (filePath: string, content: string) => {
     return response.json();
 };
 
-export const createFile = async (filePath: string) => {
+export const createFile = async (
+    request: CreateFileRequest,
+): Promise<CreateFileResponse> => {
+    const { filePath } = request;
     const response = await fetch(`${url}api/files/createFile`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -50,7 +75,10 @@ export const createFile = async (filePath: string) => {
     return response.json();
 };
 
-export const createDir = async (dirPath: string) => {
+export const createDir = async (
+    request: CreateDirectoryRequest,
+): Promise<CreateDirectoryResponse> => {
+    const { dirPath } = request;
     const response = await fetch(`${url}api/files/createDir`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -62,7 +90,10 @@ export const createDir = async (dirPath: string) => {
     return response.json();
 };
 
-export const move = async (oldPath: string, newPath: string) => {
+export const move = async (
+    request: MoveItemRequest,
+): Promise<MoveItemResponse> => {
+    const { newPath, oldPath } = request;
     const response = await fetch(`${url}api/files/move`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -75,7 +106,10 @@ export const move = async (oldPath: string, newPath: string) => {
     return response.json();
 };
 
-export const remove = async (path: string) => {
+export const remove = async (
+    request: RemoveItemRequest,
+): Promise<RemoveItemResponse> => {
+    const { path } = request;
     const response = await fetch(`${url}api/files/delete`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
