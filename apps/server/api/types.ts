@@ -1,4 +1,4 @@
-export interface FileContentResponse {
-    content: string;
-    path: string;
-}
+// export interface FileContentResponse {
+//     content: string;
+//     path: string;
+// }
