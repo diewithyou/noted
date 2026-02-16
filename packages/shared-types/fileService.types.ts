@@ -11,13 +11,9 @@ export type DirTree = {
     children?: DirTree[];
 };
 
-export type GetDirectoryTreeResponseType = {
+export type GetDirectoryTreeResponse = {
     tree?: DirTree;
     status?: ResponseStatus;
-};
-
-export type GetDirectoryTreeResponse = {
-    response: GetDirectoryTreeResponseType;
 };
 
 export type ReadFileContentRequest = {
@@ -35,12 +31,8 @@ export type UpdateFileContentRequest = {
     content: string;
 };
 
-export type UpdateFileContentResponseType = {
-    status: ResponseStatus;
-};
-
 export type UpdateFileContentResponse = {
-    response: UpdateFileContentResponseType;
+    status: ResponseStatus;
 };
 
 export type MoveItemRequest = {
@@ -48,46 +40,30 @@ export type MoveItemRequest = {
     newPath: string;
 };
 
-export type MoveItemResponseType = {
-    status: ResponseStatus;
-};
-
 export type MoveItemResponse = {
-    response: MoveItemResponseType;
+    status: ResponseStatus;
 };
 
 export type RemoveItemRequest = {
     path: string;
 };
 
-export type RemoveItemResponseType = {
-    status: ResponseStatus;
-};
-
 export type RemoveItemResponse = {
-    response: RemoveItemResponseType;
+    status: ResponseStatus;
 };
 
 export type CreateFileRequest = {
     filePath: string;
 };
 
-export type CreateFileResponseType = {
-    status: ResponseStatus;
-};
-
 export type CreateFileResponse = {
-    response: CreateFileResponseType;
+    status: ResponseStatus;
 };
 
 export type CreateDirectoryRequest = {
     dirPath: string;
 };
 
-export type CreateDirectoryResponseType = {
-    status: ResponseStatus;
-};
-
 export type CreateDirectoryResponse = {
-    response: CreateFileResponseType;
+    status: ResponseStatus;
 };

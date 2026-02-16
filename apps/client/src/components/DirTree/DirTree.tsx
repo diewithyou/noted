@@ -6,10 +6,12 @@ import {
     type TreeExpandedKeysType,
 } from "primereact/tree";
 import type { TreeNode } from "primereact/treenode";
-import { classNames } from "primereact/utils";
 import { useEffect, useRef, useState } from "react";
 
-export const FileTree = () => {
+import { useDirTree } from "./useDirTree";
+
+export const DirTree = () => {
+    const { dirTree, treeNodes } = useDirTree();
     const [nodes, setNodes] = useState<TreeNode[]>([]);
     const [editingKey, setEditingKey] = useState<string | null>(null);
     const [tempLabel, setTempLabel] = useState("");
@@ -120,7 +122,8 @@ export const FileTree = () => {
         <>
             <ContextMenu model={menu} ref={cm} />
             <Tree
-                value={nodes}
+                value={treeNodes}
+                // value={nodes}
                 dragdropScope="demo"
                 onDragDrop={(e: TreeDragDropEvent) => setNodes(e.value)}
                 className="w-full h-screen flex flex-column pr-0"

@@ -1,22 +1,15 @@
-import { useEffect } from "react";
-
-import { fetchDirTree } from "../../services/FileService/FileService";
-import { FileTree } from "../FileTree";
+import { DirTree } from "../DirTree";
 import { TabsContainer } from "../TabsContainer";
 import { TopBar } from "../TobBar";
 
 export const App = () => {
-    useEffect(() => {
-        fetchDirTree().then((response) => console.log({ response }));
-    }, []);
-
     return (
         <div className="flex w-screen h-screen">
             <div
                 className="block bg-primary sm:w-20rem w-full h-full"
                 style={{ minWidth: "20rem" }}
             >
-                <FileTree />
+                <DirTree />
             </div>
             <div className="hidden sm:flex flex-column w-full h-full">
                 <TopBar />
