@@ -10,7 +10,7 @@ export const TabsContainer = () => {
     useEffect(() => {
         console.log("[DEBUG] Test");
         const ttt = async () => {
-            const ee = await fetchFile("test.md");
+            const ee = await fetchFile({ filePath: "test.md" });
 
             // console.log({ ee });
 

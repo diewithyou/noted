@@ -10,7 +10,7 @@ import type {
     MoveItemRequest,
     MoveItemResponseType,
     ReadFileContentRequest,
-    ReadFileContentResponseType,
+    ReadFileContentResponse,
     RemoveItemRequest,
     RemoveItemResponseType,
     UpdateFileContentRequest,
@@ -38,7 +38,7 @@ export const getTree = async (
 
 export const readFileContent = async (
     req: Request<{}, {}, ReadFileContentRequest>,
-    res: Response<ReadFileContentResponseType>,
+    res: Response<ReadFileContentResponse>,
 ) => {
     const { filePath } = req.body;
 

@@ -24,14 +24,10 @@ export type ReadFileContentRequest = {
     filePath: string;
 };
 
-export type ReadFileContentResponseType = {
+export type ReadFileContentResponse = {
     content?: string;
     path?: string;
     status: ResponseStatus;
-};
-
-export type ReadFileContentResponse = {
-    response: ReadFileContentResponseType;
 };
 
 export type UpdateFileContentRequest = {

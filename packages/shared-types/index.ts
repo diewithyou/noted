@@ -13,7 +13,6 @@ export type {
     MoveItemResponseType,
     ReadFileContentRequest,
     ReadFileContentResponse,
-    ReadFileContentResponseType,
     RemoveItemRequest,
     RemoveItemResponse,
     RemoveItemResponseType,
