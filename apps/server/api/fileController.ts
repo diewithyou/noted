@@ -26,7 +26,10 @@ export const getTree = async (
     res: Response<GetDirectoryTreeResponse>,
 ) => {
     try {
-        const tree = await fileService.getDirectoryTree(ROOT_DIR);
+        const tree = await fileService.getDirectoryStructure(
+            ROOT_DIR,
+            ROOT_DIR,
+        );
         res.json({
             tree,
             status: { success: true },
