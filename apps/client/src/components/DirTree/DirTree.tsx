@@ -4,140 +4,34 @@ import {
     Tree,
     type TreeDragDropEvent,
     type TreeExpandedKeysType,
+    type TreeNodeClickEvent,
 } from "primereact/tree";
 import type { TreeNode } from "primereact/treenode";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useDirTree } from "./useDirTree";
+import { ConfirmDialog } from "primereact/confirmdialog";
 
 export const DirTree = () => {
-    const { dirTree, treeNodes } = useDirTree();
-    const [nodes, setNodes] = useState<TreeNode[]>([]);
-    const [editingKey, setEditingKey] = useState<string | null>(null);
-    const [tempLabel, setTempLabel] = useState("");
-    const [expandedKeys, setExpandedKeys] = useState<TreeExpandedKeysType>({});
-    const cm = useRef<ContextMenu>(null);
-    const menu = [
-        {
-            label: "Copy",
-            icon: "pi pi-copy",
-            command: () => {},
-        },
-        {
-            label: "Rename",
-            icon: "pi pi-pencil",
-            command: () => {},
-        },
-        {
-            label: "Remove",
-            icon: "pi pi-trash",
-            command: () => {},
-        },
-    ];
-
-    const onNodeClick = (e: any) => {
-        const node = e.node;
-        console.log("test");
-
-        // Sprawdzamy, czy węzeł ma dzieci (tylko takie można rozwijać)
-        if (node.children && node.children.length > 0) {
-            console.log("abc");
-            let _expandedKeys = { ...expandedKeys };
-
-            if (_expandedKeys[node.key]) {
-                // Jeśli jest już rozwinięty - usuwamy klucz (zwijamy)
-                console.log("zamykam");
-                delete _expandedKeys[node.key];
-            } else {
-                // Jeśli jest zwinięty - dodajemy klucz (rozwijamy)
-                console.log("otwieram", node);
-                _expandedKeys[node.key] = true;
-            }
-
-            setExpandedKeys(_expandedKeys);
-        }
-    };
-
-    const updateNodeLabel = (
-        data: any[],
-        key: string,
-        newLabel: string,
-    ): any[] => {
-        return data.map((node) => {
-            if (node.key === key) {
-                return { ...node, label: newLabel };
-            }
-            if (node.children) {
-                return {
-                    ...node,
-                    children: updateNodeLabel(node.children, key, newLabel),
-                };
-            }
-            return node;
-        });
-    };
-
-    const startEditing = (node: any) => {
-        setEditingKey(node.key);
-        setTempLabel(node.label);
-    };
-
-    const saveName = (key: string) => {
-        // Tutaj musisz napisać funkcję, która przejdzie przez Twoje drzewo
-        // i zaktualizuje 'label' dla węzła o danym 'key'
-        const newNodes = updateNodeLabel(nodes, key, tempLabel);
-        setNodes(newNodes);
-        setEditingKey(null);
-    };
-
-    const nodeTemplate = (node: any) => {
-        if (editingKey === node.key) {
-            return (
-                <InputText
-                    value={tempLabel}
-                    onChange={(e) => setTempLabel(e.target.value)}
-                    onBlur={() => saveName(node.key)} // Zapisz przy utracie focusu
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") saveName(node.key);
-                        if (e.key === "Escape") setEditingKey(null); // Anuluj
-                    }}
-                    autoFocus
-                    className="outline-none p-0 w-full"
-                />
-            );
-        }
-
-        return (
-            <span onDoubleClick={() => startEditing(node)}>{node.label}</span>
-        );
-    };
-
-    useEffect(() => {
-        NodeService.getTreeNodes().then((data) => setNodes(data));
-    }, []);
-
-    // console.log({ expandedKeys });
+    const {
+        expandedKeys,
+        onDragDrop,
+        onNodeClick,
+        setExpandedKeys,
+        treeNodes,
+    } = useDirTree();
 
     return (
         <>
-            <ContextMenu model={menu} ref={cm} />
             <Tree
                 value={treeNodes}
-                // value={nodes}
-                dragdropScope="demo"
-                onDragDrop={(e: TreeDragDropEvent) => setNodes(e.value)}
                 className="w-full h-screen flex flex-column pr-0"
-                onContextMenu={(e) =>
-                    (cm.current as ContextMenu).show(e.originalEvent)
-                }
-                // nodeTemplate={nodeTemplate}
                 togglerTemplate={() => <span style={{ width: 0 }} />}
                 onNodeClick={onNodeClick}
                 expandedKeys={expandedKeys}
                 onToggle={(e) => setExpandedKeys(e.value)}
-                filter
-                filterMode="lenient"
-                filterPlaceholder="Search"
+                dragdropScope="DirectoryTree"
+                onDragDrop={onDragDrop}
                 pt={{
                     node: () => ({
                         style: {
@@ -150,14 +44,164 @@ export const DirTree = () => {
                             padding: 1,
                         },
                     }),
-                    droppoint: "h-auto",
-                    container: "overflow-y-auto",
-                    header: "pr-3",
+                    droppoint: { className: "h-auto" },
+                    container: { className: "overflow-y-auto" },
+                    header: { className: "pr-3" },
                 }}
             />
+            <ConfirmDialog />
         </>
     );
 };
+
+// export const DirTree = () => {
+//     const { dirTree, treeNodes } = useDirTree();
+//     const [nodes, setNodes] = useState<TreeNode[]>([]);
+//     const [editingKey, setEditingKey] = useState<string | null>(null);
+//     const [tempLabel, setTempLabel] = useState("");
+//     const [expandedKeys, setExpandedKeys] = useState<TreeExpandedKeysType>({});
+//     const cm = useRef<ContextMenu>(null);
+//     const menu = [
+//         {
+//             label: "Copy",
+//             icon: "pi pi-copy",
+//             command: () => {},
+//         },
+//         {
+//             label: "Rename",
+//             icon: "pi pi-pencil",
+//             command: () => {},
+//         },
+//         {
+//             label: "Remove",
+//             icon: "pi pi-trash",
+//             command: () => {},
+//         },
+//     ];
+
+//     const onNodeClick = (e: any) => {
+//         const node = e.node;
+//         console.log("test");
+
+//         // Sprawdzamy, czy węzeł ma dzieci (tylko takie można rozwijać)
+//         if (node.children && node.children.length > 0) {
+//             console.log("abc");
+//             let _expandedKeys = { ...expandedKeys };
+
+//             if (_expandedKeys[node.key]) {
+//                 // Jeśli jest już rozwinięty - usuwamy klucz (zwijamy)
+//                 console.log("zamykam");
+//                 delete _expandedKeys[node.key];
+//             } else {
+//                 // Jeśli jest zwinięty - dodajemy klucz (rozwijamy)
+//                 console.log("otwieram", node);
+//                 _expandedKeys[node.key] = true;
+//             }
+
+//             setExpandedKeys(_expandedKeys);
+//         }
+//     };
+
+//     const updateNodeLabel = (
+//         data: any[],
+//         key: string,
+//         newLabel: string,
+//     ): any[] => {
+//         return data.map((node) => {
+//             if (node.key === key) {
+//                 return { ...node, label: newLabel };
+//             }
+//             if (node.children) {
+//                 return {
+//                     ...node,
+//                     children: updateNodeLabel(node.children, key, newLabel),
+//                 };
+//             }
+//             return node;
+//         });
+//     };
+
+//     const startEditing = (node: any) => {
+//         setEditingKey(node.key);
+//         setTempLabel(node.label);
+//     };
+
+//     const saveName = (key: string) => {
+//         // Tutaj musisz napisać funkcję, która przejdzie przez Twoje drzewo
+//         // i zaktualizuje 'label' dla węzła o danym 'key'
+//         const newNodes = updateNodeLabel(nodes, key, tempLabel);
+//         setNodes(newNodes);
+//         setEditingKey(null);
+//     };
+
+//     const nodeTemplate = (node: any) => {
+//         if (editingKey === node.key) {
+//             return (
+//                 <InputText
+//                     value={tempLabel}
+//                     onChange={(e) => setTempLabel(e.target.value)}
+//                     onBlur={() => saveName(node.key)} // Zapisz przy utracie focusu
+//                     onKeyDown={(e) => {
+//                         if (e.key === "Enter") saveName(node.key);
+//                         if (e.key === "Escape") setEditingKey(null); // Anuluj
+//                     }}
+//                     autoFocus
+//                     className="outline-none p-0 w-full"
+//                 />
+//             );
+//         }
+
+//         return (
+//             <span onDoubleClick={() => startEditing(node)}>{node.label}</span>
+//         );
+//     };
+
+//     useEffect(() => {
+//         NodeService.getTreeNodes().then((data) => setNodes(data));
+//     }, []);
+
+//     // console.log({ expandedKeys });
+
+//     return (
+//         <>
+//             <ContextMenu model={menu} ref={cm} />
+//             <Tree
+//                 value={treeNodes}
+//                 // value={nodes}
+//                 dragdropScope="demo"
+//                 onDragDrop={(e: TreeDragDropEvent) => setNodes(e.value)}
+//                 className="w-full h-screen flex flex-column pr-0"
+//                 onContextMenu={(e) =>
+//                     (cm.current as ContextMenu).show(e.originalEvent)
+//                 }
+//                 nodeTemplate={nodeTemplate}
+//                 togglerTemplate={() => <span style={{ width: 0 }} />}
+//                 onNodeClick={onNodeClick}
+//                 expandedKeys={expandedKeys}
+//                 onToggle={(e) => setExpandedKeys(e.value)}
+//                 filter
+//                 filterMode="lenient"
+//                 filterPlaceholder="Search"
+//                 pt={{
+//                     node: () => ({
+//                         style: {
+//                             cursor: "pointer",
+//                             padding: 0,
+//                         },
+//                     }),
+//                     content: () => ({
+//                         style: {
+//                             padding: 1,
+//                         },
+//                     }),
+//                     droppoint: "h-auto",
+//                     container: "overflow-y-auto",
+//                     header: "pr-3",
+//                 }}
+//             />
+//         </>
+//     );
+// };
 
 const NodeService = {
     getTreeNodesData() {

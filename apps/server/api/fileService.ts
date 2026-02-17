@@ -1,50 +1,43 @@
 import {
     readdir,
-    stat,
     readFile,
     writeFile,
     rename,
     rm,
     mkdir,
 } from "node:fs/promises";
-import { join, basename } from "node:path";
+import { join, relative } from "node:path";
 
 import type { DirTree } from "@noted/types";
 
-export async function getDirectoryTree(
+export async function getDirectoryStructure(
     dirPath: string,
-    ignoreList: string[] = [],
-): Promise<DirTree | undefined> {
-    const name = basename(dirPath);
-
-    if (ignoreList.includes(name)) return undefined;
+    rootPath: string,
+): Promise<DirTree[]> {
+    const nodes: DirTree[] = [];
 
     try {
-        const stats = await stat(dirPath);
-        const info: DirTree = {
-            name,
-            path: dirPath,
-            type: "f",
-        };
+        const items = await readdir(dirPath, { withFileTypes: true });
 
-        if (stats.isDirectory()) {
-            info.type = "d";
-            const files = await readdir(dirPath);
-            const children = await Promise.all(
-                files.map((file) =>
-                    getDirectoryTree(join(dirPath, file), ignoreList),
-                ),
-            );
-            info.children = children.filter(
-                (child): child is DirTree => child !== null,
-            );
-        } else {
-            info.size = stats.size;
+        for (const item of items) {
+            const fullPath = join(dirPath, item.name);
+            const isDirectory = item.isDirectory();
+            const relativePath = relative(rootPath, fullPath);
+
+            nodes.push({
+                name: item.name,
+                path: relativePath,
+                type: isDirectory ? "d" : "f",
+                children: isDirectory
+                    ? await getDirectoryStructure(fullPath, rootPath)
+                    : [],
+            });
         }
-        return info;
-    } catch {
-        return undefined;
+    } catch (error) {
+        console.error(`Error reading directory ${dirPath}:`, error);
     }
+
+    return nodes;
 }
 
 export async function getFileContent(filePath: string): Promise<string> {

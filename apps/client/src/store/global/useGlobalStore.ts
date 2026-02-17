@@ -11,35 +11,41 @@ interface MyTreeNode extends TreeNode {
 
 const globalInitialState: GlobalState = {
     leftDrawer: true,
-    dirTree: { name: "/", path: "", type: "d" },
+    // dirTree: [],
     treeNodes: [],
 };
 
 export const useGlobalStore = create<GlobalStore>()((set) => ({
     ...globalInitialState,
     setLeftDrawer: (leftDrawer) => set({ leftDrawer }),
-    setDirTree: (dirTree) => set({ dirTree }),
+    // setDirTree: (dirTree) => set({ dirTree }),
     setTreeNodes: (dirTree) => {
-        const transformToTree = (node: DirTree): TreeNode => {
-            const newNode: MyTreeNode = {
-                key: node.path,
-                label: node.name,
-                data: node.name,
-            };
+        const mapApiToTreeNodes = (data: DirTree[]): TreeNode[] => {
+            return data.map((item) => {
+                const isFolder = item.type === "d";
 
-            if (node.type === "d") {
-                newNode.children = node.children?.map(transformToTree) || [];
-                newNode.expandedIcon = "pi pi-folder-open";
-                newNode.collapsedIcon = "pi pi-folder";
-            } else {
-                newNode.icon = "pi pi-file";
-            }
+                const treeNode: MyTreeNode = {
+                    key: item.path,
+                    label: item.name,
+                    data: item.type,
 
-            return newNode;
+                    children:
+                        item.children && item.children.length > 0
+                            ? mapApiToTreeNodes(item.children)
+                            : [],
+                };
+
+                if (isFolder) {
+                    treeNode.expandedIcon = "pi pi-folder-open";
+                    treeNode.collapsedIcon = "pi pi-folder";
+                } else {
+                    treeNode.icon = "pi pi-file";
+                }
+
+                return treeNode;
+            });
         };
 
-        console.log("transformToTree", transformToTree(dirTree));
-
-        set({ treeNodes: [transformToTree(dirTree)] });
+        set({ treeNodes: mapApiToTreeNodes(dirTree) });
     },
 }));

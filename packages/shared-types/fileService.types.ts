@@ -12,7 +12,7 @@ export type DirTree = {
 };
 
 export type GetDirectoryTreeResponse = {
-    tree?: DirTree;
+    tree?: DirTree[];
     status?: ResponseStatus;
 };
 
