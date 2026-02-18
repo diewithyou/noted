@@ -48,4 +48,7 @@ export const useGlobalStore = create<GlobalStore>()((set) => ({
 
         set({ treeNodes: mapApiToTreeNodes(dirTree) });
     },
+    setTreeNodes2: (treeNodes) => {
+        set({ treeNodes });
+    },
 }));

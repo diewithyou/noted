@@ -26,7 +26,7 @@ export const getTree = async (
     res: Response<GetDirectoryTreeResponse>,
 ) => {
     try {
-        const tree = await fileService.getDirectoryStructure(
+        const tree = await fileService.getSortedDirectoryStructure(
             ROOT_DIR,
             ROOT_DIR,
         );

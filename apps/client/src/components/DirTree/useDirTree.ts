@@ -11,6 +11,7 @@ import { useGlobalStore } from "../../store/global/useGlobalStore";
 
 export const useDirTree = () => {
     const setTreeNodes = useGlobalStore((action) => action.setTreeNodes);
+    const setTreeNodes2 = useGlobalStore((action) => action.setTreeNodes2);
     const treeNodes = useGlobalStore((state) => state.treeNodes);
 
     const [expandedKeys, setExpandedKeys] = useState<TreeExpandedKeysType>({});
@@ -105,5 +106,7 @@ export const useDirTree = () => {
         expandedKeys,
         setExpandedKeys,
         onDragDrop,
+        setTreeNodes2,
+        getDirTree,
     };
 };

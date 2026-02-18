@@ -11,6 +11,7 @@ export type GlobalActions = {
     setLeftDrawer: (leftDrawer: boolean) => void;
     // setDirTree: (dirTree: DirTree[]) => void;
     setTreeNodes: (dirTree: DirTree[]) => void;
+    setTreeNodes2: (treeNodes: TreeNode[]) => void;
 };
 
 export type GlobalStore = GlobalState & GlobalActions;
