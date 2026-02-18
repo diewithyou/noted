@@ -40,6 +40,48 @@ export async function getDirectoryStructure(
     return nodes;
 }
 
+export async function getSortedDirectoryStructure(
+    dirPath: string,
+    rootPath: string,
+): Promise<DirTree[]> {
+    try {
+        const items = await readdir(dirPath, { withFileTypes: true });
+
+        const sortedItems = items.sort((a, b) => {
+            const aDir = a.isDirectory() ? 1 : 0;
+            const bDir = b.isDirectory() ? 1 : 0;
+
+            if (aDir !== bDir) {
+                return bDir - aDir;
+            }
+
+            return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+        });
+
+        const nodes: DirTree[] = [];
+
+        for (const item of sortedItems) {
+            const fullPath = join(dirPath, item.name);
+            const relativePath = relative(rootPath, fullPath);
+            const isDirectory = item.isDirectory();
+
+            nodes.push({
+                name: item.name,
+                path: relativePath,
+                type: isDirectory ? "d" : "f",
+                children: isDirectory
+                    ? await getSortedDirectoryStructure(fullPath, rootPath)
+                    : [],
+            });
+        }
+
+        return nodes;
+    } catch (error) {
+        console.error(`Error reading directory ${dirPath}:`, error);
+        return [];
+    }
+}
+
 export async function getFileContent(filePath: string): Promise<string> {
     return await readFile(filePath, "utf-8");
 }

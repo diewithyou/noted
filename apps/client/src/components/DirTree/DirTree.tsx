@@ -11,6 +11,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useDirTree } from "./useDirTree";
 import { ConfirmDialog } from "primereact/confirmdialog";
+import {
+    createDir,
+    createFile,
+    move,
+    remove,
+} from "../../services/FileService";
 
 export const DirTree = () => {
     const {
@@ -19,36 +25,331 @@ export const DirTree = () => {
         onNodeClick,
         setExpandedKeys,
         treeNodes,
+        setTreeNodes2,
+        getDirTree,
     } = useDirTree();
+
+    const [selectedKey, setSelectedKey] = useState<string | null>(null);
+    const cm = useRef<any>(null);
+
+    const [renamingKey, setRenamingKey] = useState<string | null>(null);
+    const [tempName, setTempName] = useState("");
+
+    const showInput = (type: "f" | "d") => {
+        const newTreeNodes = [...treeNodes];
+
+        if (!selectedKey) {
+            setTreeNodes2([
+                {
+                    key: "temp-input",
+                    type: "input",
+                    data: type, // 'f' dla pliku, 'd' dla folderu
+                    parentPath: "",
+                    icon: type === "d" ? "pi pi-folder" : "pi pi-file",
+                },
+                ...newTreeNodes,
+            ]);
+            return;
+        }
+
+        const insertPlaceholder = (list: TreeNode[]): boolean => {
+            for (let node of list) {
+                if (node.key === selectedKey && node.data === "d") {
+                    node.expanded = true;
+                    node.children = [
+                        {
+                            key: "temp-input",
+                            type: "input",
+                            data: type,
+                            parentPath: node.key,
+                            icon: type === "d" ? "pi pi-folder" : "pi pi-file",
+                        },
+                        ...(node.children || []),
+                    ];
+                    return true;
+                }
+                if (node.children && insertPlaceholder(node.children))
+                    return true;
+            }
+            return false;
+        };
+
+        insertPlaceholder(newTreeNodes);
+        setTreeNodes2(newTreeNodes);
+    };
+
+    const handleSave = async (
+        parentPath: string,
+        name: string,
+        type: "f" | "d",
+    ) => {
+        if (!name) {
+            getDirTree();
+            return;
+        }
+
+        const filePath = parentPath ? `${parentPath}/${name}` : name;
+
+        if (type === "d") {
+            createDir({ dirPath: filePath }).then((response) => {
+                if (response.status.success) {
+                    getDirTree();
+                }
+            });
+        } else {
+            createFile({ filePath: filePath }).then((response) => {
+                if (response.status.success) {
+                    getDirTree();
+                }
+            });
+        }
+    };
+
+    const findNode = (list: TreeNode[], key: string): TreeNode | null => {
+        for (let node of list) {
+            if (node.key === key) return node;
+            if (node.children) {
+                const found = findNode(node.children, key);
+                if (found) return found;
+            }
+        }
+        return null;
+    };
+
+    const handleRename = async (oldPath: string, newName: string) => {
+        if (!newName || newName === oldPath.split("/").pop()) {
+            setRenamingKey(null);
+            return;
+        }
+
+        const pathParts = oldPath.split("/");
+        pathParts[pathParts.length - 1] = newName;
+        const newPath = pathParts.join("/");
+
+        move({ oldPath, newPath });
+
+        setRenamingKey(null);
+        getDirTree();
+    };
+
+    const handleDelete = async (pathToDelete: string) => {
+        try {
+            remove({ path: pathToDelete }).then((response) => {
+                if (response.status.success) {
+                    getDirTree();
+                    setSelectedKey(null);
+                }
+            });
+        } catch (error) {
+            console.error("Delete error:", error);
+        }
+    };
+
+    const getMenuModel = () => {
+        const node = findNode(treeNodes, selectedKey!);
+
+        const isFile = node?.data === "f";
+
+        return isFile
+            ? [
+                  {
+                      label: "Rename",
+                      icon: "pi pi-pencil",
+                      command: () => {
+                          const node = findNode(treeNodes, selectedKey!);
+                          if (node) {
+                              setTempName(node.label as string);
+                              setRenamingKey(selectedKey);
+                          }
+                      },
+                  },
+                  {
+                      label: "Delete",
+                      icon: "pi pi-trash",
+                      className: "text-red-500",
+                      command: () => {
+                          if (
+                              window.confirm(
+                                  `Are you sure you want to delete ${selectedKey}?`,
+                              )
+                          ) {
+                              handleDelete(selectedKey!);
+                          }
+                      },
+                  },
+              ]
+            : [
+                  {
+                      label: "New File",
+                      icon: "pi pi-file-plus",
+                      command: () => showInput("f"),
+                  },
+                  {
+                      label: "New Folder",
+                      icon: "pi pi-folder-plus",
+                      command: () => showInput("d"),
+                  },
+                  {
+                      label: "Rename",
+                      icon: "pi pi-pencil",
+                      command: () => {
+                          const node = findNode(treeNodes, selectedKey!);
+                          if (node) {
+                              setTempName(node.label as string);
+                              setRenamingKey(selectedKey);
+                          }
+                      },
+                  },
+                  {
+                      label: "Delete",
+                      icon: "pi pi-trash",
+                      className: "text-red-500",
+                      command: () => {
+                          if (
+                              window.confirm(
+                                  `Are you sure you want to delete ${selectedKey}?`,
+                              )
+                          ) {
+                              handleDelete(selectedKey!);
+                          }
+                      },
+                  },
+              ];
+    };
+
+    // const menuModel = [
+    //     {
+    //         label: "New File",
+    //         icon: "pi pi-file-plus",
+    //         command: () => showInput("f"),
+    //     },
+    //     {
+    //         label: "New Folder",
+    //         icon: "pi pi-folder-plus",
+    //         command: () => showInput("d"),
+    //     },
+    //     {
+    //         label: "Rename",
+    //         icon: "pi pi-pencil",
+    //         command: () => {
+    //             const node = findNode(treeNodes, selectedKey!);
+    //             if (node) {
+    //                 setTempName(node.label as string);
+    //                 setRenamingKey(selectedKey);
+    //             }
+    //         },
+    //     },
+    //     {
+    //         label: "Delete",
+    //         icon: "pi pi-trash",
+    //         className: "text-red-500",
+    //         command: () => {
+    //             if (
+    //                 window.confirm(
+    //                     `Are you sure you want to delete ${selectedKey}?`,
+    //                 )
+    //             ) {
+    //                 handleDelete(selectedKey!);
+    //             }
+    //         },
+    //     },
+    // ];
+
+    const nodeTemplate = (node: any) => {
+        if (node.type === "input") {
+            return (
+                <div className="flex align-items-center">
+                    <InputText
+                        autoFocus
+                        className="p-inputtext-sm py-0"
+                        onKeyDown={(e: any) => {
+                            if (e.key === "Enter")
+                                handleSave(
+                                    node.parentPath,
+                                    e.target.value,
+                                    node.data,
+                                );
+                            if (e.key === "Escape") getDirTree();
+                        }}
+                        onBlur={() => getDirTree()}
+                    />
+                </div>
+            );
+        }
+
+        if (renamingKey === node.key) {
+            return (
+                <div className="flex align-items-center">
+                    <InputText
+                        value={tempName}
+                        autoFocus
+                        className="p-inputtext-sm py-0"
+                        onChange={(e) => setTempName(e.target.value)}
+                        onKeyDown={(e: any) => {
+                            if (e.key === "Enter")
+                                handleRename(node.key, tempName);
+                            if (e.key === "Escape") setRenamingKey(null);
+                        }}
+                        onBlur={() => setRenamingKey(null)}
+                    />
+                </div>
+            );
+        }
+
+        return (
+            <div className="flex align-items-center">
+                <span>{node.label}</span>
+            </div>
+        );
+    };
 
     return (
         <>
-            <Tree
-                value={treeNodes}
-                className="w-full h-screen flex flex-column pr-0"
-                togglerTemplate={() => <span style={{ width: 0 }} />}
-                onNodeClick={onNodeClick}
-                expandedKeys={expandedKeys}
-                onToggle={(e) => setExpandedKeys(e.value)}
-                dragdropScope="DirectoryTree"
-                onDragDrop={onDragDrop}
-                pt={{
-                    node: () => ({
-                        style: {
-                            cursor: "pointer",
-                            padding: 0,
-                        },
-                    }),
-                    content: () => ({
-                        style: {
-                            padding: 1,
-                        },
-                    }),
-                    droppoint: { className: "h-auto" },
-                    container: { className: "overflow-y-auto" },
-                    header: { className: "pr-3" },
+            <ContextMenu model={getMenuModel()} ref={cm} />
+            <div
+                className="w-full"
+                onContextMenu={(e) => {
+                    if (
+                        (e.target as HTMLElement).classList.contains("p-tree")
+                    ) {
+                        setSelectedKey(null);
+                        cm.current.show(e);
+                    }
                 }}
-            />
+            >
+                <Tree
+                    value={treeNodes}
+                    className="w-full h-screen flex flex-column pr-0"
+                    togglerTemplate={() => <span style={{ width: 0 }} />}
+                    onNodeClick={onNodeClick}
+                    expandedKeys={expandedKeys}
+                    onToggle={(e) => setExpandedKeys(e.value)}
+                    dragdropScope="DirectoryTree"
+                    onDragDrop={onDragDrop}
+                    nodeTemplate={nodeTemplate}
+                    onContextMenu={(e) => cm.current.show(e.originalEvent)}
+                    contextMenuSelectionKey={selectedKey ?? ""}
+                    onContextMenuSelectionChange={(e) =>
+                        setSelectedKey(e.value as string)
+                    }
+                    pt={{
+                        node: () => ({
+                            style: {
+                                cursor: "pointer",
+                                padding: 0,
+                            },
+                        }),
+                        content: () => ({
+                            style: {
+                                padding: 1,
+                            },
+                        }),
+                        droppoint: { className: "h-auto" },
+                        container: { className: "overflow-y-auto" },
+                        header: { className: "pr-3" },
+                    }}
+                />
+            </div>
             <ConfirmDialog />
         </>
     );
